@@ -1,0 +1,34 @@
+{
+	"name": "bun-asset-loader",
+	"version": "1.0.0",
+	"description": "Bun plugin for loading non-imported assets",
+	"module": "src/index.js",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/bytenote/bun-asset-loader"
+	},
+	"keywords": [
+		"bun",
+		"plugin",
+		"bundling",
+		"assets",
+		"images",
+		"copy"
+	],
+	"author": "Bytenote",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bytenote/bun-asset-loader/issues"
+	},
+	"homepage": "https://github.com/bytenote/bun-asset-loader#readme",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@tdewolff/minify": "^2.20.34"
+	}
+}
