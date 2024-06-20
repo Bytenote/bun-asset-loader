@@ -1,7 +1,7 @@
-<p align="center">
+<p>
 <h1 align="center">Bun Asset Loader</h1>
 <div align="center">
-<p><i>Bun plugin for loading non-imported assets</i></p>
+<p align="center"><i>Bun plugin for loading non-imported assets</i></p>
 	
 	bun i bun-asset-loader
 </div>
@@ -12,7 +12,7 @@
 This plugin incorporates custom filtered assets into the output directory by copying and optionally modifying them.  
 It is designed for files that are not imported in any source files.
 
-<b>Please note:</b> Only works on non-Windows based operating systems.
+<b>Please note:</b> <i>Only works on non-Windows based operating systems.</i>
 
 # How-To
 
@@ -40,7 +40,7 @@ const options = {
               // make the needed changes to the content
               const transformedContent = ...
 
-              return Buffer.from(JSON.stringify(transformedContent));
+              return JSON.stringify(transformedContent);
             }
         },
     ]

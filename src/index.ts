@@ -5,7 +5,10 @@ import {
 	loadFile,
 	handleContent,
 	writeFile,
-} from './utils.js';
+} from './utils.ts';
+
+import type { BunPlugin } from 'bun';
+import type { Options } from './types';
 
 /**
  * Bun plugin for copying, minifying and transforming
@@ -14,17 +17,10 @@ import {
  * not being imported in the source code, yet are required
  * to be included in the output directory.
  *
- * @param {Object} options						- Plugin options
- * @param {Object[]} options.assets				- Array of asset configurations
- * @param {string} options.assets[].from		- Source path
- * @param {string} options.assets[].to			- Destination path
- * @param {string} options.assets[].name		- Output file name
- * @param {string} options.assets[].filter		- Glob pattern or RegExp for filtering files
- * @param {Function} options.assets[].transform	- Function for transforming file content
- * @param {boolean} options.assets[].minify		- Flag for minifying content
- * @returns {Object}
+ * @param options	- Plugin options
+ * @returns 	  	- Bun plugin
  */
-const assetLoader = ({ assets = {} }) => ({
+const assetLoader = ({ assets }: Options): BunPlugin => ({
 	name: 'assetLoader',
 	async setup(build) {
 		if (!assets) {
@@ -46,12 +42,12 @@ const assetLoader = ({ assets = {} }) => ({
 				);
 
 				const { content, fileRef } = await loadFile(filePath);
-				const { transformedContent, isImage } = handleContent(
+				const transformedContent = handleContent(
 					content,
 					fileRef,
 					asset
 				);
-				await writeFile(outPath, transformedContent, isImage);
+				await writeFile(outPath, transformedContent);
 			}
 		}
 	},
