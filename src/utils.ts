@@ -3,17 +3,24 @@ import { stat, mkdir } from 'fs/promises';
 import { string } from '@tdewolff/minify';
 import { Glob } from 'bun';
 
+import type { BunFile } from 'bun';
+import type { Asset } from './types';
+
 /**
  * Validates existence of 'from' and 'to' paths,
  * and creates 'to' path if it doesn't exist.
  * Returns final output path.
  *
- * @param {string} from		- Source path
- * @param {string} to		- Destination path
- * @param {string} outdir	- Outdir from build config
- * @returns {Promise<string>}
+ * @param from		- Source path
+ * @param to		- Destination path
+ * @param outdir	- Outdir from build config
+ * @returns 		- Output path
  */
-export async function handlePaths(from, to, outdir) {
+export async function handlePaths(
+	from: string,
+	to: string,
+	outdir?: string
+): Promise<string> {
 	const fromExists = await stat(from).catch(() => false);
 	if (!from || !fromExists) {
 		throw new Error(`Invalid 'from' path: ${from}`);
@@ -39,31 +46,36 @@ export async function handlePaths(from, to, outdir) {
  * optionally filtered by a regex or glob pattern.
  * Returns an array of file paths.
  *
- * @param {string} from				- Source path
- * @param {RegExp|string} [filter]	- File filter
- * @returns {Promise<string[]>}
+ * @param from		- Source path
+ * @param filter	- File filter
+ * @returns			- Array of file paths
  */
-export async function getFilePaths(from, filter) {
-	let files = [];
+export async function getFilePaths(
+	from: string,
+	filter?: RegExp | string
+): Promise<string[]> {
+	let filePaths: string[] = [];
 
 	const fsStats = await stat(from);
 	if (fsStats.isDirectory()) {
-		files = await _getFilteredFiles(from, filter);
+		filePaths = await _getFilteredFilePaths(from, filter);
 	} else if (fsStats.isFile()) {
-		files = [from];
+		filePaths = [from];
 	}
 
-	return files;
+	return filePaths;
 }
 
 /**
  * Loads file content and returns it along with
  * a file reference.
  *
- * @param {string} filePath	- File path
- * @returns {Promise<{ content: string, fileRef: Object}>}
+ * @param filePath	- File path
+ * @returns			- File content and bun file reference
  */
-export async function loadFile(filePath) {
+export async function loadFile(
+	filePath: string
+): Promise<{ content: string; fileRef: BunFile }> {
 	const fileRef = Bun.file(filePath);
 	const content = await fileRef.text();
 
@@ -72,20 +84,22 @@ export async function loadFile(filePath) {
 
 /**
  * Copies or transforms content based on file type
- * and options.
- * Returns transformed content and a boolean flag
- * indicating if the content is an image.
+ * and options and returns it.
  *
  * Images are copied as-is, while other file types
  * are minified and/or transformed based on options.
  *
- * @param {string} content	- File content
- * @param {Object} fileRef	- File reference
- * @param {Object} options	- Options
- * @returns {{ transformedContent: string, isImage: boolean}}
+ * @param content	- File content
+ * @param fileRef	- Bun file reference
+ * @param options	- Options: minify, transform
+ * @returns 		- Transformed content or Bun file reference
  */
-export function handleContent(content, fileRef, options) {
-	let transformedContent = null;
+export function handleContent(
+	content: string,
+	fileRef: BunFile,
+	options: Asset
+): string | BunFile {
+	let transformedContent: string | BunFile | null = null;
 	const isImage = fileRef.type.includes('image');
 	if (isImage) {
 		// images are copied as-is per fileRef
@@ -94,29 +108,37 @@ export function handleContent(content, fileRef, options) {
 		transformedContent = _transformContent(content, fileRef.type, options);
 	}
 
-	return { transformedContent, isImage };
+	return transformedContent;
 }
 
 /**
  * Writes content to file system.
  *
- * @param {string} outPath	- Output path
- * @param {string} content	- Content to write
+ * @param outPath	- Output path
+ * @param content	- Content to write
  */
-export async function writeFile(outPath, content) {
+export async function writeFile(
+	outPath: string,
+	content: string | BunFile
+): Promise<void> {
 	await Bun.write(outPath, content);
 }
 
 /**
  * Minifies and/or transforms content based on
  * options.
+ * @private
  *
- * @param {string} content	- Content to transform
- * @param {string} type		- File type
- * @param {Object} options	- Options
- * @returns {string}
+ * @param content	- Content to transform
+ * @param type		- File type
+ * @param options	- Options
+ * @returns 		- Transformed content
  */
-function _transformContent(content, type, options) {
+function _transformContent(
+	content: string,
+	type: string,
+	options: Asset
+): string {
 	if (options.minify) {
 		content = string(type, content);
 	}
@@ -131,13 +153,17 @@ function _transformContent(content, type, options) {
 /**
  * Returns an array of file paths filtered by
  * a regex or glob pattern.
+ * @private
  *
- * @param {string} from				- Source path
- * @param {RegExp|string} [filter]	- File filter
- * @returns {Promise<string[]>}
+ * @param from		- Source path
+ * @param filter	- Optional file filter
+ * @returns 		- Array of file paths
  */
-async function _getFilteredFiles(from, filter) {
-	const files = [];
+async function _getFilteredFilePaths(
+	from: string,
+	filter?: RegExp | string
+): Promise<string[]> {
+	const filePaths: string[] = [];
 
 	if (filter) {
 		if (filter instanceof RegExp) {
@@ -145,13 +171,13 @@ async function _getFilteredFiles(from, filter) {
 			const glob = new Glob('*.*');
 			for await (const file of glob.scan(from)) {
 				if (filter.test(file)) {
-					files.push(path.join(from, file));
+					filePaths.push(path.join(from, file));
 				}
 			}
 		} else if (typeof filter === 'string') {
 			const glob = new Glob(filter);
 			for await (const file of glob.scan(from)) {
-				files.push(path.join(from, file));
+				filePaths.push(path.join(from, file));
 			}
 		} else {
 			throw new Error('Invalid filter provided');
@@ -159,9 +185,9 @@ async function _getFilteredFiles(from, filter) {
 	} else {
 		const glob = new Glob('*.*');
 		for await (const file of glob.scan(from)) {
-			files.push(path.join(from, file));
+			filePaths.push(path.join(from, file));
 		}
 	}
 
-	return files;
+	return filePaths;
 }
