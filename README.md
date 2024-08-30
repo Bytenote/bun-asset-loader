@@ -37,21 +37,21 @@ const options = {
             filter: '*.json',
             name: 'newName.json',
             transform: (content) => {
-              // make the needed changes to the content
-              const transformedContent = ...
+                // make the needed changes to the content
+                const transformedContent = ... // transform content
 
-              return JSON.stringify(transformedContent);
-            }
+                return JSON.stringify(transformedContent);
+            },
         },
-    ]
-}
+    ],
+};
 
 await Bun.build({
-    ...
+    // ...
     plugins: [
-        assetLoader(options)
+        // ...
+        assetLoader(options),
     ],
-    ...
 });
 ```
 

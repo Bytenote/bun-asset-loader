@@ -1,193 +1,191 @@
+import { mkdir, stat } from 'fs/promises';
 import path from 'path';
-import { stat, mkdir } from 'fs/promises';
 import { string } from '@tdewolff/minify';
-import { Glob } from 'bun';
-
-import type { BunFile } from 'bun';
-import type { Asset } from './types';
+import { Glob, type BunFile } from 'bun';
+import type { Asset } from './types.js';
 
 /**
- * Validates existence of 'from' and 'to' paths,
- * and creates 'to' path if it doesn't exist.
- * Returns final output path.
+ * Validates existence of 'from' and 'to' paths, and creates 'to' path if it
+ * doesn't exist. Returns final output path.
  *
- * @param from		- Source path
- * @param to		- Destination path
- * @param outdir	- Outdir from build config
- * @returns 		- Output path
+ * @param from Source path
+ * @param to Destination path
+ * @param outdir Outdir from build config
+ *
+ * @returns Output path
  */
 export async function handlePaths(
-	from: string,
-	to: string,
-	outdir?: string
+    from: string,
+    to: string,
+    outdir?: string
 ): Promise<string> {
-	const fromExists = await stat(from).catch(() => false);
-	if (!from || !fromExists) {
-		throw new Error(`Invalid 'from' path: ${from}`);
-	}
+    const fromExists = await stat(from).catch(() => false);
+    if (!from || !fromExists) {
+        throw new Error(`Invalid 'from' path: ${from}`);
+    }
 
-	if (!to) {
-		throw new Error(`Invalid 'to' path: ${to}`);
-	}
+    if (!to) {
+        throw new Error(`Invalid 'to' path: ${to}`);
+    }
 
-	const toExists = await stat(to).catch(() => false);
-	if (!toExists) {
-		await mkdir(to, { recursive: true }).catch((err) => {
-			throw new Error(`Error creating 'to' path: ${to} - ${err}`);
-		});
-	}
+    const toExists = await stat(to).catch(() => false);
+    if (!toExists) {
+        await mkdir(to, { recursive: true }).catch((err) => {
+            throw new Error(`Error creating 'to' path: ${to} - ${err}`);
+        });
+    }
 
-	return to ?? outdir;
+    return to ?? outdir;
 }
 
 /**
- * Checks if 'from' is a file or directory,
- * and returns an array of all file paths,
- * optionally filtered by a regex or glob pattern.
- * Returns an array of file paths.
+ * Checks if 'from' is a file or directory, and returns an array of all file
+ * paths, optionally filtered by a regex or glob pattern. Returns an array of
+ * file paths.
  *
- * @param from		- Source path
- * @param filter	- File filter
- * @returns			- Array of file paths
+ * @param from Source path
+ * @param filter File filter
+ *
+ * @returns Array of file paths
  */
 export async function getFilePaths(
-	from: string,
-	filter?: RegExp | string
+    from: string,
+    filter?: RegExp | string
 ): Promise<string[]> {
-	let filePaths: string[] = [];
+    let filePaths: string[] = [];
 
-	const fsStats = await stat(from);
-	if (fsStats.isDirectory()) {
-		filePaths = await _getFilteredFilePaths(from, filter);
-	} else if (fsStats.isFile()) {
-		filePaths = [from];
-	}
+    const fsStats = await stat(from);
+    if (fsStats.isDirectory()) {
+        filePaths = await _getFilteredFilePaths(from, filter);
+    } else if (fsStats.isFile()) {
+        filePaths = [from];
+    }
 
-	return filePaths;
+    return filePaths;
 }
 
 /**
- * Loads file content and returns it along with
- * a file reference.
+ * Loads file content and returns it along with a file reference.
  *
- * @param filePath	- File path
- * @returns			- File content and bun file reference
+ * @param filePath File path
+ *
+ * @returns File content and bun file reference
  */
 export async function loadFile(
-	filePath: string
+    filePath: string
 ): Promise<{ content: string; fileRef: BunFile }> {
-	const fileRef = Bun.file(filePath);
-	const content = await fileRef.text();
+    const fileRef = Bun.file(filePath);
+    const content = await fileRef.text();
 
-	return { content, fileRef };
+    return { content, fileRef };
 }
 
 /**
- * Copies or transforms content based on file type
- * and options and returns it.
+ * Copies or transforms content based on file type and options and returns it.
  *
- * Images are copied as-is, while other file types
- * are minified and/or transformed based on options.
+ * Images are copied as-is, while other file types are minified and/or
+ * transformed based on options.
  *
- * @param content	- File content
- * @param fileRef	- Bun file reference
- * @param options	- Options: minify, transform
- * @returns 		- Transformed content or Bun file reference
+ * @param content File content
+ * @param fileRef Bun file reference
+ * @param options Options: minify, transform
+ *
+ * @returns Transformed content or Bun file reference
  */
 export function handleContent(
-	content: string,
-	fileRef: BunFile,
-	options: Asset
+    content: string,
+    fileRef: BunFile,
+    options: Asset
 ): string | BunFile {
-	let transformedContent: string | BunFile | null = null;
-	const isImage = fileRef.type.includes('image');
-	if (isImage) {
-		// images are copied as-is per fileRef
-		transformedContent = fileRef;
-	} else {
-		transformedContent = _transformContent(content, fileRef.type, options);
-	}
+    let transformedContent: string | BunFile | null = null;
+    const isImage = fileRef.type.includes('image');
+    if (isImage) {
+        // images are copied as-is per fileRef
+        transformedContent = fileRef;
+    } else {
+        transformedContent = _transformContent(content, fileRef.type, options);
+    }
 
-	return transformedContent;
+    return transformedContent;
 }
 
 /**
  * Writes content to file system.
  *
- * @param outPath	- Output path
- * @param content	- Content to write
+ * @param outPath Output path
+ * @param content Content to write
  */
 export async function writeFile(
-	outPath: string,
-	content: string | BunFile
+    outPath: string,
+    content: string | BunFile
 ): Promise<void> {
-	await Bun.write(outPath, content);
+    await Bun.write(outPath, content);
 }
 
 /**
- * Minifies and/or transforms content based on
- * options.
- * @private
+ * Minifies and/or transforms content based on options.
  *
- * @param content	- Content to transform
- * @param type		- File type
- * @param options	- Options
- * @returns 		- Transformed content
+ * @private
+ * @param content Content to transform
+ * @param type File type
+ * @param options Options
+ *
+ * @returns Transformed content
  */
 function _transformContent(
-	content: string,
-	type: string,
-	options: Asset
+    content: string,
+    type: string,
+    options: Asset
 ): string {
-	if (options.minify) {
-		content = string(type, content);
-	}
+    if (options.minify) {
+        content = string(type, content);
+    }
 
-	if (options.transform) {
-		content = options.transform(content);
-	}
+    if (options.transform) {
+        content = options.transform(content);
+    }
 
-	return content;
+    return content;
 }
 
 /**
- * Returns an array of file paths filtered by
- * a regex or glob pattern.
- * @private
+ * Returns an array of file paths filtered by a regex or glob pattern.
  *
- * @param from		- Source path
- * @param filter	- Optional file filter
- * @returns 		- Array of file paths
+ * @private
+ * @param from Source path
+ * @param filter Optional file filter
+ *
+ * @returns Array of file paths
  */
 async function _getFilteredFilePaths(
-	from: string,
-	filter?: RegExp | string
+    from: string,
+    filter?: RegExp | string
 ): Promise<string[]> {
-	const filePaths: string[] = [];
+    const filePaths: string[] = [];
 
-	if (filter) {
-		if (filter instanceof RegExp) {
-			// use bun glob to load all dir contents
-			const glob = new Glob('*.*');
-			for await (const file of glob.scan(from)) {
-				if (filter.test(file)) {
-					filePaths.push(path.join(from, file));
-				}
-			}
-		} else if (typeof filter === 'string') {
-			const glob = new Glob(filter);
-			for await (const file of glob.scan(from)) {
-				filePaths.push(path.join(from, file));
-			}
-		} else {
-			throw new Error('Invalid filter provided');
-		}
-	} else {
-		const glob = new Glob('*.*');
-		for await (const file of glob.scan(from)) {
-			filePaths.push(path.join(from, file));
-		}
-	}
+    if (filter) {
+        if (filter instanceof RegExp) {
+            // use bun glob to load all dir contents
+            const glob = new Glob('*.*');
+            for await (const file of glob.scan(from)) {
+                if (filter.test(file)) {
+                    filePaths.push(path.join(from, file));
+                }
+            }
+        } else if (typeof filter === 'string') {
+            const glob = new Glob(filter);
+            for await (const file of glob.scan(from)) {
+                filePaths.push(path.join(from, file));
+            }
+        } else {
+            throw new Error('Invalid filter provided');
+        }
+    } else {
+        const glob = new Glob('*.*');
+        for await (const file of glob.scan(from)) {
+            filePaths.push(path.join(from, file));
+        }
+    }
 
-	return filePaths;
+    return filePaths;
 }

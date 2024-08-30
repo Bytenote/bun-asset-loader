@@ -1,34 +1,44 @@
 {
-	"name": "bun-asset-loader",
-	"version": "1.1.0",
-	"description": "Bun plugin for loading non-imported assets",
-	"module": "src/index.ts",
-	"type": "module",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/bytenote/bun-asset-loader"
-	},
-	"keywords": [
-		"bun",
-		"plugin",
-		"bundling",
-		"assets",
-		"images",
-		"copy"
-	],
-	"author": "Bytenote",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/bytenote/bun-asset-loader/issues"
-	},
-	"homepage": "https://github.com/bytenote/bun-asset-loader#readme",
-	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	},
-	"dependencies": {
-		"@tdewolff/minify": "^2.20.34"
-	}
+    "name": "bun-asset-loader",
+    "version": "1.1.1",
+    "description": "Bun plugin for loading non-imported assets",
+    "module": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "format": "prettier --write ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bytenote/bun-asset-loader.git"
+    },
+    "keywords": [
+        "bun",
+        "plugin",
+        "bundling",
+        "loader",
+        "loading",
+        "assets",
+        "images",
+        "html",
+        "json",
+        "copy"
+    ],
+    "author": "Bytenote",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/bytenote/bun-asset-loader/issues"
+    },
+    "homepage": "https://github.com/bytenote/bun-asset-loader#readme",
+    "prettier": "@bytenote/prettier-config",
+    "devDependencies": {
+        "@bytenote/prettier-config": "^1.0.4",
+        "@types/bun": "^1.1.8",
+        "typescript": "^5.5.4"
+    },
+    "dependencies": {
+        "@tdewolff/minify": "^2.20.37"
+    },
+    "trustedDependencies": [
+        "@tdewolff/minify"
+    ]
 }
