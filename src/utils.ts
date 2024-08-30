@@ -1,4 +1,4 @@
-import { mkdir, stat } from 'fs/promises';
+import { mkdir, stat } from 'node:fs/promises';
 import path from 'path';
 import { string } from '@tdewolff/minify';
 import { Glob, type BunFile } from 'bun';
@@ -30,8 +30,8 @@ export async function handlePaths(
 
     const toExists = await stat(to).catch(() => false);
     if (!toExists) {
-        await mkdir(to, { recursive: true }).catch((err) => {
-            throw new Error(`Error creating 'to' path: ${to} - ${err}`);
+        await mkdir(to, { recursive: true }).catch((err: Error) => {
+            throw new Error(`Error creating 'to' path: ${to} - ${err.message}`);
         });
     }
 

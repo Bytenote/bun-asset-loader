@@ -24,5 +24,8 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+            - name: Install Node specific dependencies
+              run: npm install @types/node
+
             - name: Run CI
               run: npm run ci
