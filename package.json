@@ -1,34 +1,55 @@
 {
-	"name": "bun-asset-loader",
-	"version": "1.1.0",
-	"description": "Bun plugin for loading non-imported assets",
-	"module": "src/index.ts",
-	"type": "module",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/bytenote/bun-asset-loader"
-	},
-	"keywords": [
-		"bun",
-		"plugin",
-		"bundling",
-		"assets",
-		"images",
-		"copy"
-	],
-	"author": "Bytenote",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/bytenote/bun-asset-loader/issues"
-	},
-	"homepage": "https://github.com/bytenote/bun-asset-loader#readme",
-	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	},
-	"dependencies": {
-		"@tdewolff/minify": "^2.20.34"
-	}
+    "name": "bun-asset-loader",
+    "version": "1.2.0",
+    "description": "Bun plugin for loading non-imported assets",
+    "keywords": [
+        "bun",
+        "plugin",
+        "bundling",
+        "loader",
+        "loading",
+        "assets",
+        "images",
+        "html",
+        "json",
+        "copy"
+    ],
+    "homepage": "https://github.com/bytenote/bun-asset-loader#readme",
+    "bugs": {
+        "url": "https://github.com/bytenote/bun-asset-loader/issues"
+    },
+    "license": "MIT",
+    "author": "Bytenote",
+    "files": [
+        "/dist"
+    ],
+    "main": "dist/index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bytenote/bun-asset-loader.git"
+    },
+    "scripts": {
+        "local-release": "changeset version && changeset publish",
+        "prepublishOnly": "npm run ci",
+        "ci": "npm run build && npm run check-format && npm run check-exports",
+        "build": "tsc",
+        "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+        "check-format": "prettier --check .",
+        "format": "prettier --write ."
+    },
+    "type": "module",
+    "prettier": "@bytenote/prettier-config",
+    "devDependencies": {
+        "@arethetypeswrong/cli": "^0.15.4",
+        "@bytenote/prettier-config": "^1.0.4",
+        "@changesets/cli": "^2.27.7",
+        "@types/bun": "^1.1.8",
+        "typescript": "^5.5.4"
+    },
+    "dependencies": {
+        "@tdewolff/minify": "^2.20.37"
+    },
+    "trustedDependencies": [
+        "@tdewolff/minify"
+    ]
 }
