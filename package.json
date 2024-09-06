@@ -1,6 +1,6 @@
 {
     "name": "bun-asset-loader",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Bun plugin for loading non-imported assets",
     "keywords": [
         "bun",
