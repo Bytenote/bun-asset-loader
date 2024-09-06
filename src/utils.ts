@@ -9,16 +9,11 @@ import type { Asset } from './types.js';
  * doesn't exist. Returns final output path.
  *
  * @param from Source path
- * @param to Destination path
- * @param outdir Outdir from build config
+ * @param to Either 'to' in Asset type or 'outdir' in Bun.build() options
  *
  * @returns Output path
  */
-export async function handlePaths(
-    from: string,
-    to: string,
-    outdir?: string
-): Promise<string> {
+export async function handlePaths(from: string, to?: string): Promise<string> {
     const fromExists = await stat(from).catch(() => false);
     if (!from || !fromExists) {
         throw new Error(`Invalid 'from' path: ${from}`);
@@ -35,7 +30,7 @@ export async function handlePaths(
         });
     }
 
-    return to ?? outdir;
+    return to;
 }
 
 /**

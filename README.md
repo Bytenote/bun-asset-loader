@@ -33,7 +33,7 @@ const options = {
         },
         {
             from: 'path/to/dir',
-            // outdir of Bun.build will be used if 'to' is omitted
+            // 'to' can be omitted - uses Bun.build 'outdir' as fallback
             filter: '*.json',
             name: 'newName.json',
             transform: (content) => {

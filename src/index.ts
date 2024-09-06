@@ -29,8 +29,7 @@ const assetLoader = ({ assets }: Options): BunPlugin => ({
         for (const asset of assets) {
             const to = await handlePaths(
                 asset.from,
-                asset.to,
-                build.config.outdir
+                asset.to ?? build.config.outdir
             );
             const filePaths = await getFilePaths(asset.from, asset.filter);
 
@@ -46,6 +45,7 @@ const assetLoader = ({ assets }: Options): BunPlugin => ({
                     fileRef,
                     asset
                 );
+
                 await writeFile(outPath, transformedContent);
             }
         }
