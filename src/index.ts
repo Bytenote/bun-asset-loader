@@ -1,6 +1,6 @@
 import path from 'path';
 import type { BunPlugin } from 'bun';
-import type { Options } from './types.js';
+import type { AssetOptions } from './types.js';
 import {
     getFilePaths,
     handleContent,
@@ -19,7 +19,7 @@ import {
  *
  * @returns Bun plugin
  */
-const assetLoader = ({ assets }: Options): BunPlugin => ({
+const assetLoader = ({ assets }: AssetOptions): BunPlugin => ({
     name: 'assetLoader',
     async setup(build) {
         if (!assets) {
@@ -29,8 +29,7 @@ const assetLoader = ({ assets }: Options): BunPlugin => ({
         for (const asset of assets) {
             const to = await handlePaths(
                 asset.from,
-                asset.to,
-                build.config.outdir
+                asset.to ?? build.config.outdir
             );
             const filePaths = await getFilePaths(asset.from, asset.filter);
 
@@ -46,6 +45,7 @@ const assetLoader = ({ assets }: Options): BunPlugin => ({
                     fileRef,
                     asset
                 );
+
                 await writeFile(outPath, transformedContent);
             }
         }
