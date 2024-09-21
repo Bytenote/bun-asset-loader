@@ -3,7 +3,7 @@
 <div align="center">
 <p align="center"><i>Bun plugin for loading non-imported assets</i></p>
 	
-	bun i bun-asset-loader
+	bun i -D bun-asset-loader
 </div>
 </p>
 
