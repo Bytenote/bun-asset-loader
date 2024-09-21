@@ -7,6 +7,6 @@ export type Asset = {
     minify?: boolean;
 };
 
-export type AssetOptions = {
+export type AssetLoaderOptions = {
     assets: Asset[];
 };

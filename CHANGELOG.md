@@ -1,5 +1,11 @@
 # bun-asset-loader
 
+## 1.2.2
+
+### Patch Changes
+
+-   0d87f03: Renamed AssetOptions to AssetLoaderOptions for clarity
+
 ## 1.2.1
 
 ### Patch Changes

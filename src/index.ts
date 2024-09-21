@@ -1,6 +1,6 @@
 import path from 'path';
 import type { BunPlugin } from 'bun';
-import type { AssetOptions } from './types.js';
+import type { AssetLoaderOptions } from './types.js';
 import {
     getFilePaths,
     handleContent,
@@ -19,7 +19,7 @@ import {
  *
  * @returns Bun plugin
  */
-const assetLoader = ({ assets }: AssetOptions): BunPlugin => ({
+const assetLoader = ({ assets }: AssetLoaderOptions): BunPlugin => ({
     name: 'assetLoader',
     async setup(build) {
         if (!assets) {
